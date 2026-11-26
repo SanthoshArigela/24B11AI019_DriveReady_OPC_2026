@@ -1,0 +1,11 @@
+question,must_include
+"What is Medivora AI?","prototype"
+"Who is the intended customer?","pharmacies"
+"Can it identify low-stock products?","planned"
+"Will it track expiry by batch?","planned"
+"Can it show current medicine availability?","no live"
+"Can it generate daily and monthly sales reports?","planned"
+"Can it suggest a reorder list?","planned"
+"Can it integrate with my existing billing system?","not confirmed"
+"What is the subscription price?","not confirmed"
+"Can staff use it without access to other stores' data?","planned"
