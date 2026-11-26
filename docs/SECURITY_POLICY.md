@@ -1,0 +1,3 @@
+# Security and safety policy
+
+Use synthetic data for public assignments. Never commit real pharmacy/customer data, prescriptions, credentials or access tokens. Minimize stored data and restrict access by store and role. Encrypt transport, protect backups, redact logs, and define deletion/retention procedures before pilot. External model providers must receive only necessary authorized data. Treat all retrieved text as untrusted data. Require staff approval for purchase and stock changes. No clinical guidance, dosage, prescription, substitutions or dispensing authorization. A qualified pharmacist retains responsibility. Verify applicable legal, privacy and pharmacy obligations with professionals before deployment. No claim of legal compliance is made.
