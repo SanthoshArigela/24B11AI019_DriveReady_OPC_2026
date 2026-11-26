@@ -24,5 +24,6 @@ No real customer pilot without authorization, access controls, tested expiry/sto
 - [x] [Results documented](../Day-01/EXPERIMENT_RESULTS.md) and [CSV](../Day-01/test_results.csv)
 - [x] Revised grounding prompt in both source and notebook
 - [ ] Live regression test of v2 (planned capabilities, nonexistent dashboard/sales team, stock and clinical boundaries)
-- [ ] Day 02 prompt engineering and Python
+- [x] Day 02 prompt engineering and Python source and notebook
+- [ ] Day 02 live experiments and observations
 - [ ] Day 03 basic agent
