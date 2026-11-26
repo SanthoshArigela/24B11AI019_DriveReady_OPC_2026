@@ -30,3 +30,6 @@ Bring the above Python catalogue and the [ten Day 01 FAQs](../Day-01/README.md).
 
 ## Results
 Source and notebook prepared. Live API execution and results pending. Record actual outputs, classifier counts, JSON result, rule comparison and memory behavior after execution. The revised Day 01 prompt remains separately pending live regression testing.
+
+## Debugging update
+Fixed literal backslash-n in notebook invocation cells; source and notebook definitions synchronized. Empty or whitespace-only answers, transient connection failures, rate limits and retryable HTTP failures receive at most three total attempts with 1s/2s delays. Non-retryable API errors are surfaced. Classification continues per test, distinguishes wrong labels, invalid labels and response/API errors, and reports incomplete evaluations. Chat history retains complete pairs and does not store failed calls; MAX_TURNS=2 retains no complete prior pair when sending a new request. Live rerun is pending. Reopen the GitHub notebook rather than an older Colab copy.
