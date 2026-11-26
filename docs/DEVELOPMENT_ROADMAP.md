@@ -25,5 +25,7 @@ No real customer pilot without authorization, access controls, tested expiry/sto
 - [x] Revised grounding prompt in both source and notebook
 - [ ] Live regression test of v2 (planned capabilities, nonexistent dashboard/sales team, stock and clinical boundaries)
 - [x] Day 02 prompt engineering and Python source and notebook
-- [ ] Day 02 live experiments and observations
-- [ ] Day 03 basic agent
+- [ ] Day 02 live experiments and observations (student reports completion; evidence pending)
+- [x] Day 03 LangChain assistant, no-tool agent preview and ten FAQ tests
+- [ ] Day 03 live evaluation (four runs)
+- [x] Day 04 preparation: two synthetic catalogue functions
