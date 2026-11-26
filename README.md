@@ -13,12 +13,12 @@ Staff question → intent extraction → validated inventory lookup → determin
 Planned capabilities: inventory lookup, low-stock alerts, batch expiry reporting, natural-language sales summaries and draft reorder lists. Later: invoice OCR and demand forecasting.
 
 ## Status
-**Proposed concept; implementation not yet verified.** No live pharmacy integrations, clinical capabilities, customer data or commercial launch. Day folders below are planned, not completed. The company name and legal structure are unverified.
+**Proposed concept; implementation not yet verified.** No live pharmacy integrations, clinical capabilities, customer data or commercial launch. Day 01 source and notebook are committed; live API execution is pending. Day 02 and 03 remain planned. The company name and legal structure are unverified.
 
 ## Drive Ready learning plan
 | Day | Learning topic | Planned Medivora application |
 |---|---|---|
-| 01 | LLM chatbot | Pharmacy operations chatbot with no live data |
+| 01 | LLM chatbot | [Pharmacy operations chatbot and experiments](Day-01/README.md) — implemented, live API run pending |
 | 02 | Prompt engineering and Python | Structured inventory intent, JSON validation and error handling |
 | 03 | Basic LangChain agent | Pharmacy operations assistant; ten scenario tests |
 
@@ -45,10 +45,10 @@ requirements.txt
 .env.example
 .gitignore
 ```
-Only documentation and starter configuration are provided in this package. No executable daily submissions are represented as complete.
+Day 01 source, notebook and dependencies are available. Later assignments remain planned; live Day 01 results are not yet recorded.
 
 ## Setup (for future implementations)
-Use Python in a virtual environment or Google Colab. Install dependencies after the actual assignment and provider are confirmed. Store API keys in environment variables or Colab Secrets. Never commit credentials, prescriptions or identifiable customer data.
+Use Python in a virtual environment or Google Colab. Install Day 01 dependencies using `pip install -r requirements.txt`. See [Day 01 instructions](Day-01/README.md). Store API keys in environment variables or Colab Secrets. Never commit credentials, prescriptions or identifiable customer data.
 
 ## Principles
 Use deterministic code for inventory, arithmetic and dates; use LLMs for language understanding and explanation. Show record IDs, freshness and missing-data warnings. Require authorized human approval for consequential changes. No diagnosis, prescribing, dosage advice or automatic medicine substitution. No claims of compliance or business impact without verification.
