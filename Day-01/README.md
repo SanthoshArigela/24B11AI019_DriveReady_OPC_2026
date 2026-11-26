@@ -32,4 +32,4 @@ Default model: `openai/gpt-oss-20b` (faculty HTML); the faculty notebook also us
 These are prospective customer questions, not validated market research.
 
 ## Results
-Implementation prepared; live API execution pending. Record actual responses and token counts after running with your key. No fabricated outputs or test pass claims. This is a learning prototype, not a clinical assistant or deployed pharmacy system.
+Original prompt (v1): all six practical cells executed successfully in the student's Colab session on 26 November 2026, as evidenced by screenshots. See [experiment results](EXPERIMENT_RESULTS.md) and [CSV](test_results.csv). Grounding defects were observed: planned features were described as available and unverified services were mentioned. Prompt v2 has been implemented in both source and notebook; live regression testing of v2 remains pending. Historical measurements are from v1 only. This is a learning prototype, not a clinical assistant or deployed pharmacy system.
