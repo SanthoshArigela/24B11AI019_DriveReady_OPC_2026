@@ -1,6 +1,6 @@
 # Development roadmap
 
-All items are planned, not completed. Confirm daily assignments against mentor instructions.
+Day 01 original learning prototype executed and documented on 26 November 2026. Revised prompt v2 is implemented but not yet live-tested. Other phases remain planned. Confirm daily assignments against mentor instructions.
 
 | Phase | Deliverable | Exit criteria |
 |---|---|---|
@@ -17,3 +17,12 @@ Future optional topics: tool calling, memory, embeddings/RAG, structured outputs
 
 ## Release gates
 No real customer pilot without authorization, access controls, tested expiry/stock logic, secret management, manual fallback, audit and data retention policy. No autonomous medicine sales or purchasing.
+
+## Phase 0 progress
+- [x] Day 01 source and notebook
+- [x] Original live API experiments (student screenshots)
+- [x] [Results documented](../Day-01/EXPERIMENT_RESULTS.md) and [CSV](../Day-01/test_results.csv)
+- [x] Revised grounding prompt in both source and notebook
+- [ ] Live regression test of v2 (planned capabilities, nonexistent dashboard/sales team, stock and clinical boundaries)
+- [ ] Day 02 prompt engineering and Python
+- [ ] Day 03 basic agent
