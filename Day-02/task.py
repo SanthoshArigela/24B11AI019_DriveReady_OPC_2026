@@ -2,6 +2,7 @@
 import os
 import json
 import functools
+import time
 from groq import Groq, RateLimitError, APIConnectionError, APIError
 
 MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
@@ -17,7 +18,7 @@ def get_client():
             pass
     if not key:
         raise RuntimeError("Configure GROQ_API_KEY in Colab Secrets or environment.")
-    return Groq(api_key=key)
+    return Groq(api_key=key, max_retries=0, timeout=30.0)
 
 ROLE = "You are Medivora AI's pharmacy operations learning assistant."
 FACTS = f"Medivora is a proposed product, not deployed. Synthetic catalogue (INR per unit): {json.dumps(CATALOGUE)}. No live inventory, installation service, sales team or confirmed commercial prices."
@@ -28,12 +29,44 @@ SYSTEM = f"ROLE: {ROLE}\nFACTS: {FACTS}\nRULES: {RULES}\nFORMAT: {FORMAT}"
 def msg(role: str, content: str) -> dict:
     return {"role": role, "content": content}
 
+class EmptyResponseError(ValueError):
+    """No usable final answer after bounded retries."""
+
+
 def ask(client, messages: list[dict], temperature: float = 0.3) -> str:
-    response = client.chat.completions.create(model=MODEL, messages=messages, temperature=temperature)
-    reply = response.choices[0].message.content
-    if not reply:
-        raise ValueError("Empty model response")
-    return reply
+    """Return final answer text, retrying only transient failures (3 attempts)."""
+    for attempt in range(1, 4):
+        try:
+            response = client.chat.completions.create(
+                model=MODEL, messages=messages, temperature=temperature
+            )
+            reply = response.choices[0].message.content if response.choices else None
+            if isinstance(reply, str) and reply.strip():
+                return reply.strip()
+            reason = response.choices[0].finish_reason if response.choices else "no choices"
+            error = EmptyResponseError(f"Empty final answer (finish reason: {reason})")
+        except APIConnectionError as exc:
+            error = exc
+        except APIError as exc:
+            status = getattr(exc, "status_code", None)
+            if not isinstance(exc, RateLimitError) and status not in (408, 409, 429) and not (isinstance(status, int) and status >= 500):
+                raise
+            error = exc
+        if attempt == 3:
+            raise error
+        print(f"[retry {attempt}/2] {type(error).__name__}; retrying in {attempt}s")
+        time.sleep(attempt)
+    raise AssertionError("Unreachable")
+
+
+def run_experiment(experiment, client):
+    """Keep independent notebook experiments from aborting on expected errors."""
+    try:
+        return experiment(client)
+    except (APIError, ValueError, KeyError) as exc:
+        print(f"[INCOMPLETE] {experiment.__name__}: {type(exc).__name__}")
+        return None
+
 
 def log_call(func):
     @functools.wraps(func)
@@ -60,17 +93,20 @@ class ChatSession:
 
     def chat(self, user_text: str) -> str:
         # Faculty uses MAX_TURNS as a message count, not a pair count.
-        self.history.append(msg("user", user_text))
-        recent = [self.history[0]] + self.history[1:][-self.max_turns:]
+        pending = msg("user", user_text)
+        # Keep complete previous pairs plus the current user message.
+        pair_budget = (self.max_turns - 1) // 2 * 2
+        previous = self.history[1:][-pair_budget:] if pair_budget else []
+        recent = [self.history[0]] + previous + [pending]
         try:
             reply = ask(self.client, recent)
         except RateLimitError:
-            reply = "Rate limit reached. Please retry shortly."
+            return "[ERROR] Rate limit reached. Please retry shortly."
         except APIConnectionError:
-            reply = "Cannot reach the server. Please retry shortly."
+            return "[ERROR] Cannot reach the server. Please retry shortly."
         except (APIError, ValueError):
-            reply = "Unable to obtain a response. Please retry."
-        self.history.append(msg("assistant", reply))
+            return "[ERROR] Unable to obtain a response. Please retry."
+        self.history.extend([pending, msg("assistant", reply)])
         # Keep complete recent pairs; always retain system prompt.
         self.history = [self.history[0]] + self.history[1:][-(self.max_turns // 2 * 2):]
         return reply
@@ -100,16 +136,40 @@ def prompt_experiment(client):
     question = "Can you install Medivora within one hour?"
     without = f"ROLE: {ROLE}\nFACTS: {FACTS}\nFORMAT: {FORMAT}"
     for label, prompt in [("Without rules", without), ("With rules", SYSTEM)]:
-        print(label, ask(client, [msg("system", prompt), msg("user", question)]))
+        try:
+            print(label, ask(client, [msg("system", prompt), msg("user", question)]))
+        except (APIError, ValueError) as exc:
+            print(label, "[ERROR]", type(exc).__name__)
 
 def classification_experiment(client):
+    results = []
     for few in (False, True):
-        correct = 0
+        correct = completed = errors = invalid = 0
         for text, expected in TESTS:
-            actual = classify(client, text, few)
-            correct += actual == expected
-            print("Few-shot:", few, "|", text, "| expected:", expected, "| actual:", actual)
-        print("Correct:", correct, "/ 5")
+            try:
+                actual = classify(client, text, few)
+                if actual not in {"order", "question", "complaint"}:
+                    invalid += 1
+                    status = "INVALID_LABEL"
+                else:
+                    completed += 1
+                    correct += actual == expected
+                    status = "PASS" if actual == expected else "WRONG_LABEL"
+            except (APIError, ValueError) as exc:
+                actual = None
+                errors += 1
+                status = "ERROR:" + type(exc).__name__
+            row = {"few_shot": few, "message": text, "expected": expected,
+                   "actual": actual, "status": status}
+            results.append(row)
+            print(row)
+        print(f"Correct: {correct}/{len(TESTS)} | valid: {completed} | invalid: {invalid} | API/response errors: {errors}")
+        if completed:
+            print(f"Accuracy among valid labels: {correct/completed:.1%}")
+        if errors or invalid:
+            print("Incomplete evaluation: rerun before reporting final accuracy.")
+    return results
+
 
 def parse_request(raw: str) -> dict:
     raw = raw.strip()
@@ -173,10 +233,7 @@ def main():
     client = get_client()
     for experiment in (demo_chat, prompt_experiment, classification_experiment, json_experiment, memory_experiment):
         print("\n", experiment.__name__)
-        try:
-            experiment(client)
-        except (APIError, ValueError) as exc:
-            print("Experiment incomplete:", type(exc).__name__)
+        run_experiment(experiment, client)
     interactive(client)
 
 if __name__ == "__main__":
