@@ -13,14 +13,14 @@ Staff question → intent extraction → validated inventory lookup → determin
 Planned capabilities: inventory lookup, low-stock alerts, batch expiry reporting, natural-language sales summaries and draft reorder lists. Later: invoice OCR and demand forecasting.
 
 ## Status
-**Proposed concept; implementation not yet verified.** No live pharmacy integrations, clinical capabilities, customer data or commercial launch. Day 01 original learning prototype executed successfully in Colab; screenshot-backed results are recorded. Revised prompt v2 awaits live regression testing. Day 02 source and notebook are committed; live execution is pending. Day 03 remains planned. The company name and legal structure are unverified.
+**Proposed concept; implementation not yet verified.** No live pharmacy integrations, clinical capabilities, customer data or commercial launch. Day 01 original learning prototype executed successfully in Colab; screenshot-backed results are recorded. Revised prompt v2 awaits live regression testing. Day 02 execution reported complete by the student; detailed results pending. Day 03 source, tests and notebook are committed; live execution pending. The company name and legal structure are unverified.
 
 ## Drive Ready learning plan
 | Day | Learning topic | Planned Medivora application |
 |---|---|---|
 | 01 | LLM chatbot | [Pharmacy operations chatbot and experiments](Day-01/README.md) — v1 executed; v2 retest pending |
 | 02 | Prompt engineering and Python | [Context-aware chatbot, few-shot classification and JSON](Day-02/README.md) — live execution pending |
-| 03 | Basic LangChain agent | Pharmacy operations assistant; ten scenario tests |
+| 03 | Basic LangChain agent | [LangChain assistant and ten FAQ tests](Day-03/README.md) — live execution pending |
 
 Later learning topics will follow the mentor's actual curriculum rather than an assumed schedule.
 
@@ -37,7 +37,7 @@ Later learning topics will follow the mentor's actual curriculum rather than an 
 ```text
 Day-01/task.py, README.md, Medivora_AI_Day_01.ipynb, EXPERIMENT_RESULTS.md, test_results.csv
 Day-02/task.py, README.md, Medivora_AI_Day_02.ipynb
-Day-03/task.py, README.md, test.csv
+Day-03/task.py, README.md, tests.csv, Medivora_AI_Day_03.ipynb
 docs/
 src/
 tests/
@@ -45,7 +45,7 @@ requirements.txt
 .env.example
 .gitignore
 ```
-Day 01 source, notebook and dependencies are available. See [actual experiment results](Day-01/EXPERIMENT_RESULTS.md) and [CSV](Day-01/test_results.csv). Day 02 is implemented but not live-tested; Day 03 remains planned.
+Day 01 source, notebook and dependencies are available. See [actual experiment results](Day-01/EXPERIMENT_RESULTS.md) and [CSV](Day-01/test_results.csv). Day 02 execution reported complete; outputs pending verification. Day 03 implementation is ready for live evaluation.
 
 ## Setup (for future implementations)
 Use Python in a virtual environment or Google Colab. Install Day 01 dependencies using `pip install -r requirements.txt`. See [Day 01 instructions](Day-01/README.md). Store API keys in environment variables or Colab Secrets. Never commit credentials, prescriptions or identifiable customer data.
