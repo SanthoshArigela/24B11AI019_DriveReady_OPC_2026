@@ -1,0 +1,6 @@
+message,expected_json
+"hey im Demo Ravi need 5 demo product b by 2026-12-05 normal","{""staff_name"":""Demo Ravi"",""item"":""demo product b"",""qty"":5,""required_date"":""2026-12-05"",""priority"":""normal""}"
+"Demo Kiran here urgent 10 demo product a for 2026-12-06","{""staff_name"":""Demo Kiran"",""item"":""demo product a"",""qty"":10,""required_date"":""2026-12-06"",""priority"":""urgent""}"
+"15 demo product c pls 2026-12-07 urgent - Demo Anil","{""staff_name"":""Demo Anil"",""item"":""demo product c"",""qty"":15,""required_date"":""2026-12-07"",""priority"":""urgent""}"
+"normal priority, Demo Meena, 2 demo product b, date 2026-12-08","{""staff_name"":""Demo Meena"",""item"":""demo product b"",""qty"":2,""required_date"":""2026-12-08"",""priority"":""normal""}"
+"Demo Sita needs 1 demo product a on 2026-12-09 urgent pls","{""staff_name"":""Demo Sita"",""item"":""demo product a"",""qty"":1,""required_date"":""2026-12-09"",""priority"":""urgent""}"
