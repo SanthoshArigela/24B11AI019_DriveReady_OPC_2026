@@ -1,10 +1,10 @@
 """Medivora Day 04: synthetic inventory and human-approved draft logging."""
-import os, time, csv, json, uuid, re
+import os, time, csv, json, uuid, re, unicodedata
 from urllib.parse import urlparse
 from langchain.agents.middleware import wrap_model_call
 from datetime import date
 from typing import Literal
-from pydantic import BaseModel, Field, ConfigDict, ValidationError
+from pydantic import BaseModel, Field, ConfigDict, ValidationError, field_validator
 from langchain.tools import tool
 from langchain.agents import create_agent
 from langchain_groq import ChatGroq
@@ -16,11 +16,23 @@ For any explicit demo product price or stock question, call the corresponding to
 Automatic low-stock alerts, batch expiry, sales reports and store isolation are planned and NOT implemented. Never claim stores are isolated. Manual demo stock lookup and human-approved reorder drafts are implemented; automated reorder recommendations are not implemented. State these distinctions explicitly.
 Billing integration and subscription price are not confirmed. Reorder drafts only.
 Never invent facts, clinical advice, purchases or saved records. Ask for missing fields.
-A draft requires staff name, catalogue item, positive quantity, ISO date and priority.
+A draft requires staff name, catalogue item, positive quantity, ISO date and priority (only normal or urgent). Never suggest high, medium or low. For store isolation answer no, not implemented yet.
 Use log_reorder only after explicit approval; the program independently enforces approval.
 Reply briefly in English or Telugu matching the user."""
 
+def normalize(value):
+    return " ".join(unicodedata.normalize("NFKC", value).casefold().replace("’", "'").replace("‑", "-").split())
+
+def normalize_item(value):
+    value = normalize(value)
+    return "demo " + value if re.fullmatch(r"product [a-z]", value) else value
+
 class ReorderRequest(BaseModel):
+    @field_validator("item", mode="before")
+    @classmethod
+    def canonical_item(cls, value):
+        return normalize_item(value) if isinstance(value, str) else value
+
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
     staff_name: str = Field(min_length=1, max_length=80)
     item: Literal["demo product a","demo product b","demo product c"]
@@ -89,7 +101,7 @@ def retry_read(call):
 @tool
 def get_price(item: str, qty: int = 1) -> str:
     """Calculate exact synthetic INR total for demo product a, b or c and positive quantity."""
-    item = item.strip().lower()
+    item = normalize_item(item)
     if item not in CATALOGUE:
         return "Unknown product; use demo product a, b or c."
     if type(qty) is not int or not 1 <= qty <= 10000:
@@ -99,7 +111,7 @@ def get_price(item: str, qty: int = 1) -> str:
 @tool
 def is_available(item: str) -> str:
     """Check synthetic stock count for demo product a, b or c; not live pharmacy stock."""
-    item = item.strip().lower()
+    item = normalize_item(item)
     if item not in CATALOGUE:
         return "Unknown product."
     stock = CATALOGUE[item][1]
@@ -180,7 +192,7 @@ def make_agent(llm, store, vague=False):
     def log_reorder(staff_name: str, item: str, qty: int, required_date: str, priority: str) -> str:
         """Save only an exact human-approved synthetic reorder draft; requires all five fields."""
         try:
-            record = ReorderRequest(staff_name=staff_name,item=item.strip().lower(),
+            record = ReorderRequest(staff_name=staff_name,item=normalize_item(item),
                 qty=qty,required_date=required_date,priority=priority)
         except ValidationError:
             return "Not saved: invalid or missing reorder fields."
@@ -192,8 +204,28 @@ def make_agent(llm, store, vague=False):
     return create_agent(model=llm, tools=[tool1 if vague else get_price,is_available,log_reorder],
                         system_prompt=SYSTEM, middleware=[paced_model])
 
+def combined_lookup(question):
+    """Deterministic read-only route for explicit single-product price AND stock queries."""
+    q = normalize(question)
+    items = re.findall(r"\b(?:demo )?product ([a-z])\b", q)
+    if len(items) != 1 or not re.search(r"\b(price|cost)\b", q) or not re.search(r"\b(stock|availability|available)\b", q):
+        return None
+    # Restrict to simple unit-price queries; complex quantities remain agent tasks.
+    if re.search(r"\d|\b(save|order|reorder|buy|purchase|units|quantity)\b", q):
+        return None
+    item = "demo product " + items[0]
+    price = get_price.invoke({"item":item,"qty":1})
+    stock = is_available.invoke({"item":item})
+    return f"{item}: {price} per unit; {stock}. Synthetic data only."
+
 def run_agent(agent, question, history=None, trace=False, read_only=False):
     messages = list(history or []) + [{"role":"user","content":question}]
+    direct = combined_lookup(question)
+    if direct is not None:
+        calls = ["get_price", "is_available"]
+        if trace:
+            print("Deterministic route:", calls, "Model calls: 0")
+        return direct, messages + [{"role":"assistant","content":direct}], calls, 0
     def invoke():
         result = agent.invoke({"messages":messages},config={"recursion_limit":16})
         if not result["messages"][-1].content:
@@ -227,7 +259,7 @@ def structured_tests(llm, path="structured_output_tests.csv"):
                 status="ERROR"
             results.append({**row,"actual":json.dumps(actual),"status":status})
             print(status,actual)
-    write_csv("day04_structured_results.csv",results)
+    write_csv("day04_structured_results_v3.csv",results)
 
 def write_csv(path, rows):
     if rows:
@@ -238,13 +270,13 @@ def write_csv(path, rows):
 
 def check_answer(row, answer, calls):
     """Approximate rubric: AND groups of OR alternatives plus required tool names."""
-    normalized = answer.casefold()
+    normalized = normalize(answer)
     groups = row.get("required_groups") or row["must_include"]
-    matches = all(any(term.strip().casefold() in normalized for term in group.split("|"))
+    matches = all(any(normalize(term) in normalized for term in group.split("|"))
                   for group in groups.split(";"))
     required = set(filter(None, row.get("required_tools", "").split("|")))
     forbidden = [x for x in row.get("forbidden", "").split("|") if x]
-    return matches and required.issubset(calls) and not any(x.casefold() in normalized for x in forbidden)
+    return matches and required.issubset(calls) and not any(normalize(x) in normalized for x in forbidden)
 
 def evaluate(llm,path="tests.csv"):
     store=DraftStore()
@@ -260,7 +292,7 @@ def evaluate(llm,path="tests.csv"):
                 calls,rounds,status=[],0,"ERROR"
             results.append({**row,"answer":str(answer),"tools":json.dumps(calls),"model_calls":rounds,"status":status})
             print(status,row["question"],answer)
-    write_csv("day04_agent_results_v2.csv",results)
+    write_csv("day04_agent_results_v3.csv",results)
     print("Passed:",sum(r["status"]=="PASS" for r in results),"/",len(results))
 
 def naming_experiment(llm):
@@ -272,7 +304,7 @@ def naming_experiment(llm):
             rows.append({"vague":vague,"answer":str(answer),"tools":json.dumps(calls),"model_calls":rounds})
         except Exception as exc:
             rows.append({"vague":vague,"answer":type(exc).__name__,"tools":"[]","model_calls":0})
-    write_csv("day04_naming_results.csv",rows)
+    write_csv("day04_naming_results_v3.csv",rows)
 
 def review_and_save(llm,store,message):
     if store is None:
@@ -293,6 +325,10 @@ def review_and_save(llm,store,message):
         store.approved=None
 
 def self_test():
+    assert normalize_item("Demo product\u202fb") == "demo product b"
+    assert "120" in combined_lookup("Check price and stock of demo product b")
+    assert "25 units" in combined_lookup("Check price and stock of demo product b")
+    assert combined_lookup("Save reorder and check price and stock of demo product b") is None
     assert parse_sheet_id("") == ""
     assert parse_sheet_id("https://docs.google.com/spreadsheets/d/" + "a"*25 + "/edit") == "a"*25
     try:
