@@ -13,7 +13,7 @@ Staff question → intent extraction → validated inventory lookup → determin
 Planned capabilities: inventory lookup, low-stock alerts, batch expiry reporting, natural-language sales summaries and draft reorder lists. Later: invoice OCR and demand forecasting.
 
 ## Status
-**Proposed concept; implementation not yet verified.** No live pharmacy integrations, clinical capabilities, customer data or commercial launch. Day 01 original learning prototype executed successfully in Colab; screenshot-backed results are recorded. Revised prompt v2 awaits live regression testing. Day 02 execution reported complete by the student; detailed results pending. Day 03 source, tests and notebook are committed; live execution pending. The company name and legal structure are unverified.
+**Proposed concept; implementation not yet verified.** No live pharmacy integrations, clinical capabilities, customer data or commercial launch. Day 01 original learning prototype executed successfully in Colab; screenshot-backed results are recorded. Revised prompt v2 awaits live regression testing. Day 02 execution reported complete by the student; detailed results pending. Day 03 agent execution reported working; full evaluation evidence pending. Day 04 implementation committed; live Groq and Sheets tests pending. The company name and legal structure are unverified.
 
 ## Drive Ready learning plan
 | Day | Learning topic | Planned Medivora application |
@@ -21,6 +21,8 @@ Planned capabilities: inventory lookup, low-stock alerts, batch expiry reporting
 | 01 | LLM chatbot | [Pharmacy operations chatbot and experiments](Day-01/README.md) — v1 executed; v2 retest pending |
 | 02 | Prompt engineering and Python | [Context-aware chatbot, few-shot classification and JSON](Day-02/README.md) — live execution pending |
 | 03 | Basic LangChain agent | [LangChain assistant and ten FAQ tests](Day-03/README.md) — live execution pending |
+
+| 04 | Tools, structured output and Google Sheets | [Synthetic inventory and approved reorder drafts](Day-04/README.md) — live execution pending |
 
 Later learning topics will follow the mentor's actual curriculum rather than an assumed schedule.
 
@@ -38,6 +40,7 @@ Later learning topics will follow the mentor's actual curriculum rather than an 
 Day-01/task.py, README.md, Medivora_AI_Day_01.ipynb, EXPERIMENT_RESULTS.md, test_results.csv
 Day-02/task.py, README.md, Medivora_AI_Day_02.ipynb
 Day-03/task.py, README.md, tests.csv, Medivora_AI_Day_03.ipynb
+Day-04/task.py, README.md, tests.csv, structured_output_tests.csv, business_facts.txt, Medivora_AI_Day_04.ipynb
 docs/
 src/
 tests/
