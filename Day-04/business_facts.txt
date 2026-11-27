@@ -1,0 +1,20 @@
+Medivora AI is a learning prototype.
+Its target customers are independent pharmacies in India.
+Its focus is pharmacy operations, not clinical care.
+Demo product A costs INR 50 per unit.
+Demo product B costs INR 120 per unit.
+Demo product C costs INR 80 per unit.
+Demo stock A is 100 units.
+Demo stock B is 25 units.
+Demo stock C is zero units.
+All catalogue data is synthetic.
+No live pharmacy inventory is connected.
+Low-stock alerts are planned.
+Batch expiry tracking is planned.
+Sales reporting is planned.
+Store isolation is planned.
+Billing integration is not confirmed.
+Subscription pricing is not confirmed.
+Reorder drafts require human approval.
+Draft logging does not execute purchases.
+Clinical questions should be referred to a qualified pharmacist.
