@@ -1,0 +1,6 @@
+thread,question,answer,tools,model_calls,status
+a,My name is Demo Ravi. Remember it.,"Got it, Demo Ravi.",[],1,PASS
+b,My name is Demo Kiran. Remember it.,"Sure, Demo Kiran. I’ll keep that in mind for this conversation.",[],1,PASS
+a,What is my name?,Your name is Demo Ravi.,[],1,PASS
+b,What is my name?,Your name is Demo Kiran.,[],1,PASS
+c,What is my name?,"I’m sorry, but I don’t have that information.",[],1,PASS
