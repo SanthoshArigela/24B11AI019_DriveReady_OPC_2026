@@ -61,3 +61,6 @@ Original 8/17; revised 12/17; structured 5/5; no revised API errors. See Day-04/
 
 ## Day 05 transition
 Day 04 runtime and Sheets verification confirmed by user; exact V3 score not supplied. Day 05 memory and RAG implementation committed; live evaluation pending. See Day-05/README.md.
+
+## Day 05 baseline sign-off and V2
+Faculty target met: agent 83.33%, memory 100%, PDF 100%, combined agent and memory 86.21%, overall 87.88%. Baseline CSVs archived in Day-05/results/baseline/. V2 targeted fixes committed; live retest and Day 05 Sheets evidence pending. See Day-05/EXPERIMENT_RESULTS.md.
