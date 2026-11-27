@@ -1,0 +1,5 @@
+question,answer,hits,status
+Who lived with Arjun?,"Arjun lived with his grandmother【page 1, chunk 2】.","[[1, 0.581436038017273], [2, 0.553878664970398], [3, 0.5116599798202515]]",PASS
+Why did the traveler lose his way?,"The traveler lost his way because heavy rain covered the roads while he was searching for shelter. (Page 1, chunk 2)","[[1, 0.4318002760410309], [2, 0.37512850761413574], [0, 0.2230604887008667]]",PASS
+What did Arjun learn?,"Arjun learned that even the smallest act of kindness could bring hope to someone in need【page 1, chunk 3】.","[[3, 0.5792865753173828], [2, 0.5438504219055176], [1, 0.5358558893203735]]",PASS
+What was Arjun's age?,The answer is not available in the PDF.,"[[3, 0.47130662202835083], [1, 0.46083468198776245], [2, 0.44510573148727417]]",PASS
