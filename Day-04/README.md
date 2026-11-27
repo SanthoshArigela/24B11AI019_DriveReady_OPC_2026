@@ -24,3 +24,6 @@ Source prepared; live Groq and Google Sheets execution pending.
 
 ## Debugging revision
 See [original baseline](BASELINE_RESULTS.md). Revised rubric checks alternative wording, required tool names and selected forbidden claims; it is approximate and needs manual review. Model middleware paces calls and retries transient failures, honoring numeric Retry-After up to 90 seconds; longer waits surface errors. No whole-agent replay. Sheet accepts ID or URL, blank creates, exit cancels. Revised results use day04_agent_results_v2.csv. Live rerun pending.
+
+## Day 04 observed results and final revision
+Original 8/17; revised 12/17; structured 5/5; no revised API errors. See Day-04/EXPERIMENT_RESULTS.md. V3 code committed; live retest and Google Sheets write evidence pending. New output filenames end in _v3.csv.
