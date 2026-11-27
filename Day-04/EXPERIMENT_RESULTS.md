@@ -7,3 +7,6 @@ Structured extraction: 5/5 exact JSON matches, all PASS. Naming trials: descript
 Remaining revised failures: low stock and live inventory wording mismatches; reorder answer suggested invalid high/medium/low priorities; store isolation answer began Yes despite admitting no isolation; combined lookup called get_price twice and reported unknown product. Unicode whitespace observed, but tool arguments unavailable, so cause not proven.
 
 V3 introduces normalization, explicit priority constraints, revised approximate rubric and deterministic dual-tool routing for simple single-item price/stock questions. Routed calls are counted separately from LLM-selected calls (zero model calls). V3 live results pending. Google Sheets write evidence pending. No production inventory or purchase execution.
+
+## Day 05 transition
+Day 04 runtime and Sheets verification confirmed by user; exact V3 score not supplied. Day 05 memory and RAG implementation committed; live evaluation pending. See Day-05/README.md.
