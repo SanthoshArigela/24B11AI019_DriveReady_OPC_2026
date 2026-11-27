@@ -32,3 +32,5 @@ No real customer pilot without authorization, access controls, tested expiry/sto
 - [x] Day 04 tools, Pydantic, approved draft logging, notebook and test fixtures
 - [ ] Day 04 live Groq evaluation and Google Sheets write verification
 - [x] Day 05 RAG preparation: 20 synthetic business facts
+- [x] Day 04 debugging revision and original 8/17 screenshot baseline preserved
+- [ ] Day 04 revised live evaluation and Google Sheets verification
