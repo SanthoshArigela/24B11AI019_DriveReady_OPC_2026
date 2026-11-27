@@ -55,3 +55,6 @@ Use Python in a virtual environment or Google Colab. Install Day 01 dependencies
 
 ## Principles
 Use deterministic code for inventory, arithmetic and dates; use LLMs for language understanding and explanation. Show record IDs, freshness and missing-data warnings. Require authorized human approval for consequential changes. No diagnosis, prescribing, dosage advice or automatic medicine substitution. No claims of compliance or business impact without verification.
+
+## Day 04 observed results and final revision
+Original 8/17; revised 12/17; structured 5/5; no revised API errors. See Day-04/EXPERIMENT_RESULTS.md. V3 code committed; live retest and Google Sheets write evidence pending. New output filenames end in _v3.csv.
