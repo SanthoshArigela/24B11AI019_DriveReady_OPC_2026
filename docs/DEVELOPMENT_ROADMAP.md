@@ -34,3 +34,6 @@ No real customer pilot without authorization, access controls, tested expiry/sto
 - [x] Day 05 RAG preparation: 20 synthetic business facts
 - [x] Day 04 debugging revision and original 8/17 screenshot baseline preserved
 - [ ] Day 04 revised live evaluation and Google Sheets verification
+
+## Day 04 observed results and final revision
+Original 8/17; revised 12/17; structured 5/5; no revised API errors. See Day-04/EXPERIMENT_RESULTS.md. V3 code committed; live retest and Google Sheets write evidence pending. New output filenames end in _v3.csv.
