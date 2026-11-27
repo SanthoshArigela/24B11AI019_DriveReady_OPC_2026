@@ -1,0 +1,6 @@
+# Day 05 observed results (baseline)
+Agent 20/24 (83.33%); memory 5/5 (100%); PDF 4/4 (100%); agent+memory 25/29 (86.21%); overall 29/33 (87.88%). Zero recorded execution errors. Faculty 80% target met. These are rubric pass rates, not general accuracy estimates.
+
+Original CSV records are in results/baseline/. Text preserved; line endings may differ from upload. Four failures: intended customer retrieval missed F02; subscription wording mismatch despite F17; unknown X not explicitly identified despite get_price call; automatic purchase denial correct but search_faq not called. No retrieval scores for business FAQ were recorded, so exact cause of F02 miss is unknown.
+
+V2 uses topic aliases for F02/F17/F19, deterministic read-only tool routes with checkpointed turns, explicit unknown-product response, citation/tool requirements and expanded subscription rubric. Other queries retain semantic search and model-selected tools. Direct routes have zero model calls and are not evidence of improved LLM tool selection. PDF import modernized. V2 outputs have _v2 suffix. Live retest pending; no new score claimed. Memory isolation is not production access control. Day 05 Sheets write not evidenced by these CSVs.
