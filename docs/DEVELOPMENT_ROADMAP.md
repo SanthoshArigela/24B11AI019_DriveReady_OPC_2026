@@ -13,7 +13,7 @@ Day 01 original learning prototype executed and documented on 26 November 2026. 
 | 6 | Invoice OCR and forecasting | Human verification, forecast backtest versus naive baseline |
 | 7 | Commercial readiness | Pricing validation, support plan, security and legal review |
 
-Future optional topics: tool calling, memory, embeddings/RAG, structured outputs, deployment and multi-agent orchestration. These are not confirmed Day 4+ curriculum.
+Faculty-confirmed Day 04: tool calling, structured outputs and Google Sheets. Day 05 preparation: 20 business facts for RAG. Later topics remain unconfirmed.
 
 ## Release gates
 No real customer pilot without authorization, access controls, tested expiry/stock logic, secret management, manual fallback, audit and data retention policy. No autonomous medicine sales or purchasing.
@@ -29,3 +29,6 @@ No real customer pilot without authorization, access controls, tested expiry/sto
 - [x] Day 03 LangChain assistant, no-tool agent preview and ten FAQ tests
 - [ ] Day 03 live evaluation (four runs)
 - [x] Day 04 preparation: two synthetic catalogue functions
+- [x] Day 04 tools, Pydantic, approved draft logging, notebook and test fixtures
+- [ ] Day 04 live Groq evaluation and Google Sheets write verification
+- [x] Day 05 RAG preparation: 20 synthetic business facts
