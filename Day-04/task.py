@@ -1,5 +1,7 @@
 """Medivora Day 04: synthetic inventory and human-approved draft logging."""
-import os, time, csv, json, uuid
+import os, time, csv, json, uuid, re
+from urllib.parse import urlparse
+from langchain.agents.middleware import wrap_model_call
 from datetime import date
 from typing import Literal
 from pydantic import BaseModel, Field, ConfigDict, ValidationError
@@ -10,8 +12,8 @@ from groq import APIConnectionError, APIStatusError
 
 CATALOGUE = {"demo product a": (50,100), "demo product b": (120,25), "demo product c": (80,0)}
 SYSTEM = """You are Medivora AI, a prototype for independent pharmacies.
-Use get_price for prices and is_available for demo stock. Never claim live stock.
-Low-stock alerts, batch expiry, sales reports and store isolation are planned.
+For any explicit demo product price or stock question, call the corresponding tool before answering; for both, call both. Use canonical names demo product a, b, c (including unknown names for validation). Product C is a known catalogue item. Never claim live stock. Say no live inventory is connected for real stock questions.
+Automatic low-stock alerts, batch expiry, sales reports and store isolation are planned and NOT implemented. Never claim stores are isolated. Manual demo stock lookup and human-approved reorder drafts are implemented; automated reorder recommendations are not implemented. State these distinctions explicitly.
 Billing integration and subscription price are not confirmed. Reorder drafts only.
 Never invent facts, clinical advice, purchases or saved records. Ask for missing fields.
 A draft requires staff name, catalogue item, positive quantity, ISO date and priority.
@@ -42,6 +44,31 @@ def make_model():
     return ChatGroq(model=os.getenv("GROQ_MODEL","openai/gpt-oss-20b"),
                     api_key=get_key(), temperature=0.2, max_retries=0, timeout=45)
 
+def retry_delay(exc, attempt):
+    headers = getattr(getattr(exc, "response", None), "headers", {})
+    try:
+        return max(2 ** attempt, float(headers.get("retry-after", 0)))
+    except (ValueError, TypeError):
+        return 2 ** attempt
+
+@wrap_model_call
+def paced_model(request, handler):
+    """Pace every agent model call, including tool follow-ups."""
+    time.sleep(2)
+    for attempt in range(3):
+        try:
+            return handler(request)
+        except (APIConnectionError, APIStatusError) as exc:
+            if isinstance(exc, APIStatusError) and exc.status_code not in (408,409,429) and exc.status_code < 500:
+                raise
+            if attempt == 2:
+                raise
+            delay = retry_delay(exc, attempt)
+            if delay > 90:
+                raise
+            print(f"Model retry in {delay:.1f}s")
+            time.sleep(delay)
+
 def retry_read(call):
     for attempt in range(3):
         try:
@@ -54,7 +81,10 @@ def retry_read(call):
                 raise
             if attempt == 2:
                 raise
-            time.sleep(2 ** attempt)
+            delay = retry_delay(exc, attempt)
+            if delay > 90:
+                raise
+            time.sleep(delay)
 
 @tool
 def get_price(item: str, qty: int = 1) -> str:
@@ -106,14 +136,36 @@ class DraftStore:
         self.rows.append(row)
         return f"Saved {'Google Sheets' if self.ws is not None else 'local demo'} draft {rid}; INR {row[6]}. No purchase executed."
 
+def parse_sheet_id(raw):
+    raw = raw.strip()
+    if not raw:
+        return ""
+    if raw.startswith("https://"):
+        u = urlparse(raw)
+        match = re.fullmatch(r"/spreadsheets/d/([A-Za-z0-9_-]+)(?:/.*)?", u.path)
+        if u.netloc != "docs.google.com" or not match:
+            raise ValueError("Expected a Google Sheets URL")
+        raw = match.group(1)
+    if not re.fullmatch(r"[A-Za-z0-9_-]{20,}", raw):
+        raise ValueError("Invalid spreadsheet ID")
+    return raw
+
 def connect_sheet():
     from google.colab import auth
     from google.auth import default
     import gspread
     auth.authenticate_user()
     gc = gspread.authorize(default()[0])
-    sid = input("Existing spreadsheet ID (blank to create a new demo sheet): ").strip()
-    sh = gc.open_by_key(sid) if sid else gc.create("Medivora AI - Reorder Requests")
+    while True:
+        raw = input("Spreadsheet ID or Google Sheets URL (Enter to create, exit to cancel): ").strip()
+        if raw.lower() == "exit":
+            return None
+        try:
+            sid = parse_sheet_id(raw)
+            sh = gc.open_by_key(sid) if sid else gc.create("Medivora AI - Reorder Requests")
+            break
+        except (ValueError, gspread.exceptions.SpreadsheetNotFound, PermissionError):
+            print("Invalid or inaccessible spreadsheet. Enter a valid ID/URL, blank to create, or exit.")
     ws = sh.sheet1
     existing = ws.row_values(1)
     if not existing:
@@ -138,7 +190,7 @@ def make_agent(llm, store, vague=False):
         """does stuff"""
         return get_price.invoke({"item":item,"qty":qty})
     return create_agent(model=llm, tools=[tool1 if vague else get_price,is_available,log_reorder],
-                        system_prompt=SYSTEM)
+                        system_prompt=SYSTEM, middleware=[paced_model])
 
 def run_agent(agent, question, history=None, trace=False, read_only=False):
     messages = list(history or []) + [{"role":"user","content":question}]
@@ -147,7 +199,7 @@ def run_agent(agent, question, history=None, trace=False, read_only=False):
         if not result["messages"][-1].content:
             raise ValueError("Empty final response")
         return result
-    result = retry_read(invoke) if read_only else invoke()
+    result = invoke()  # Model-level retries avoid replaying whole agent runs.
     new = result["messages"][len(messages):]
     calls = [c["name"] for m in new for c in getattr(m,"tool_calls",[])]
     rounds = sum(m.type=="ai" for m in new)
@@ -184,6 +236,16 @@ def write_csv(path, rows):
             writer.writeheader()
             writer.writerows(rows)
 
+def check_answer(row, answer, calls):
+    """Approximate rubric: AND groups of OR alternatives plus required tool names."""
+    normalized = answer.casefold()
+    groups = row.get("required_groups") or row["must_include"]
+    matches = all(any(term.strip().casefold() in normalized for term in group.split("|"))
+                  for group in groups.split(";"))
+    required = set(filter(None, row.get("required_tools", "").split("|")))
+    forbidden = [x for x in row.get("forbidden", "").split("|") if x]
+    return matches and required.issubset(calls) and not any(x.casefold() in normalized for x in forbidden)
+
 def evaluate(llm,path="tests.csv"):
     store=DraftStore()
     agent=make_agent(llm,store)
@@ -192,13 +254,13 @@ def evaluate(llm,path="tests.csv"):
         for row in csv.DictReader(f):
             try:
                 answer,_,calls,rounds=run_agent(agent,row["question"],read_only=True)
-                status="PASS" if row["must_include"].casefold() in str(answer).casefold() and not store.rows else "FAIL"
+                status="PASS" if check_answer(row, str(answer), calls) and not store.rows else "FAIL"
             except Exception as exc:
                 answer=type(exc).__name__
                 calls,rounds,status=[],0,"ERROR"
             results.append({**row,"answer":str(answer),"tools":json.dumps(calls),"model_calls":rounds,"status":status})
             print(status,row["question"],answer)
-    write_csv("day04_agent_results.csv",results)
+    write_csv("day04_agent_results_v2.csv",results)
     print("Passed:",sum(r["status"]=="PASS" for r in results),"/",len(results))
 
 def naming_experiment(llm):
@@ -213,6 +275,9 @@ def naming_experiment(llm):
     write_csv("day04_naming_results.csv",rows)
 
 def review_and_save(llm,store,message):
+    if store is None:
+        print('No spreadsheet connected; nothing saved.')
+        return
     record=extract(llm,message)
     print(record.model_dump_json(indent=2))
     print("Total INR:",CATALOGUE[record.item][0]*record.qty)
@@ -228,6 +293,14 @@ def review_and_save(llm,store,message):
         store.approved=None
 
 def self_test():
+    assert parse_sheet_id("") == ""
+    assert parse_sheet_id("https://docs.google.com/spreadsheets/d/" + "a"*25 + "/edit") == "a"*25
+    try:
+        parse_sheet_id("Hi")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Invalid ID accepted")
     assert "600" in get_price.invoke({"item":"demo product b","qty":5})
     assert "Unknown" in get_price.invoke({"item":"x"})
     assert "Invalid" in get_price.invoke({"item":"demo product a","qty":0})
