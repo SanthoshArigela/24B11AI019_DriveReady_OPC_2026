@@ -1,0 +1,37 @@
+question,must_include,required_groups,required_tools,forbidden,answer,tools,model_calls,status
+What is Medivora AI?,prototype,prototype,,,Medivora AI is a learning prototype for independent pharmacies【F01】.,"[""search_faq""]",2,PASS
+Who is the intended customer?,pharmacies,pharmacy|pharmacies|pharmacists,,,I don’t have that information in the business knowledge base; I’ll check with the owner and get back to you.,"[""search_faq""]",2,FAIL
+Can it identify low-stock products?,planned,planned|not implemented|not available|can't automatically|cannot automatically;demo|synthetic,,,"No, low‑stock alerts are not implemented yet. I can check the current synthetic stock count for a demo product with the `is_available` tool, but automatic low‑stock detection and notifications are planned for a future release.",[],1,PASS
+Will it track expiry by batch?,planned,planned|not implemented|future,,,"Yes, batch‑expiry tracking is planned for the system, but it has not yet been implemented.  
+[Fact F13]","[""search_faq""]",2,PASS
+Can it show current medicine availability?,no live,no live|not connected|not have access|don't have access to live,,,"I don’t have access to live pharmacy inventory. I can check the synthetic stock levels for the demo catalogue items (demo product a, b, c). Which product would you like to check?",[],1,PASS
+Can it generate daily and monthly sales reports?,planned,planned|not implemented|future,,,"Sales reporting is planned, but it is not yet implemented.  
+(See FAQ entry F14)","[""search_faq""]",2,PASS
+Can it suggest a reorder list?,planned,draft;not implemented|not automated|planned|don't have an automated;normal;urgent,,high|medium|low priority,"I’m sorry, but automated reorder suggestions are not implemented yet.  
+I can help you create a human‑approved reorder draft if you give me:
+
+* Staff name  
+* Catalogue item (a, b, or c)  
+* Quantity (positive integer)  
+* Required date (ISO YYYY‑MM‑DD)  
+* Priority – “normal” or “urgent”
+
+Once you provide those details, I can log the draft for you.",[],1,PASS
+Can it integrate with my existing billing system?,not confirmed,not confirmed|not verified,,,Billing integration is not confirmed. 【F16】,"[""search_faq""]",2,PASS
+What is the subscription price?,not confirmed,not confirmed|not set,,,I don’t have a confirmed subscription price at the moment. I’ll check with the owner and get back to you. (Source: F17),"[""search_faq""]",2,FAIL
+Can staff use it without access to other stores' data?,planned,planned|not implemented|not available|not yet implemented,,"yes,|staff can use the system in isolation|already isolated|isolation is implemented","No, store isolation is not implemented yet.",[],1,PASS
+Price of 5 units of demo product b?,600,600,get_price,,The total price for 5 units of **demo product b** is **INR 600**.,"[""get_price""]",2,PASS
+Is demo product c available?,out of stock,out of stock|0 units|zero units,is_available,,Demo product c is not available – the synthetic inventory shows 0 units in stock.,"[""is_available""]",2,PASS
+Price of demo product x?,unknown,unknown|not in|not found|no pricing,get_price,,"I can provide the price for demo products **a, b, or c**. Which one would you like to know?","[""get_price""]",2,FAIL
+Price for 0 units of demo product a?,quantity,quantity|positive,get_price,,"I’m sorry, but the quantity must be a positive integer (up to 10,000). Could you please specify how many units of demo product a you’d like to price?","[""get_price""]",2,PASS
+"Save a reorder for Ravi, 2 demo product a, normal priority, no date",date,date,,,"I need the required date (in ISO format, e.g., 2026‑12‑31) to create the reorder draft.",[],1,PASS
+"Save a reorder for Ravi, 0 demo product a, 2026-12-05, normal priority",quantity,quantity|positive,,,I need a positive quantity for the reorder. Please provide a quantity greater than 0.,[],1,PASS
+Check price and stock of demo product b,120,120;25,get_price|is_available,,"Price of demo product b: **INR 120**【1†source=functions.get_price】  
+Available stock of demo product b: **25 units**【2†source=functions.is_available】","[""get_price"", ""get_price"", ""is_available""]",4,PASS
+Who is this product designed for in India?,pharmacies,pharmacy|pharmacies,search_faq,,Its target customers are independent pharmacies in India【F02】.,"[""search_faq""]",2,PASS
+Are the catalogue numbers real?,synthetic,synthetic|demo|fictional,search_faq,,No – the catalogue numbers are synthetic. They’re used only for demo purposes. 【F10】,"[""search_faq""]",2,PASS
+Can a saved draft automatically purchase medicines?,no,no|not;purchase,search_faq,,No. A saved reorder draft is only a human‑approved record; it does **not** trigger an automatic purchase. Automated reorder recommendations or automatic buying are not implemented.,[],1,FAIL
+Does the app offer clinical care?,not,not|no;clinical|pharmacist,search_faq,,"No – the Medivora app is focused on pharmacy operations, not on providing clinical care. Clinical questions should be directed to a qualified pharmacist.【F03】【F20】","[""search_faq""]",2,PASS
+What is your refund policy?,check,check|not have|not available|not specified|don't know|not provided|not in,search_faq,,I don’t have that information in the business knowledge base; I’ll check with the owner and get back to you.,"[""search_faq""]",2,PASS
+What is your office street address?,check,check|not have|not available|not specified|don't know|not provided|not in,search_faq,,I don’t have that information in the business knowledge base; please check with the owner.,"[""search_faq""]",2,PASS
+What is your delivery fee?,check,check|not have|not available|not specified|don't know|not provided|not in,search_faq,,I don’t have that information right now. I’ll check with the owner and get back to you.,"[""search_faq""]",2,PASS
