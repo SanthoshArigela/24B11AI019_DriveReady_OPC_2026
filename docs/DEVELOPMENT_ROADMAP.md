@@ -37,3 +37,6 @@ No real customer pilot without authorization, access controls, tested expiry/sto
 
 ## Day 04 observed results and final revision
 Original 8/17; revised 12/17; structured 5/5; no revised API errors. See Day-04/EXPERIMENT_RESULTS.md. V3 code committed; live retest and Google Sheets write evidence pending. New output filenames end in _v3.csv.
+
+## Day 05 transition
+Day 04 runtime and Sheets verification confirmed by user; exact V3 score not supplied. Day 05 memory and RAG implementation committed; live evaluation pending. See Day-05/README.md.
