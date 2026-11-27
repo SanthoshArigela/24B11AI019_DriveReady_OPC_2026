@@ -7,3 +7,6 @@ Faculty tutorial: ChromaDB, one fact per chunk, search_faq, InMemorySaver, separ
 Run main notebook sequentially. It embeds the Day 04 snapshot and fixtures. 20 facts, 24 independent agent cases and 5 memory turns. Sign-off counts errors as failures. PDF evaluation separate. Actual results pending. Download CSVs and inspect traces. Keyword rubric is approximate; retrieval distance threshold 0.65 is provisional and not calibrated. Prompt grounding reduces but does not eliminate hallucinations. Memory is process-local, not authenticated isolation. Day 04 trusted approval path remains separate from chat. Day 05 uses model-selected tools, not Day 04 deterministic routing, so combined lookup is a regression test. No live inventory or purchases.
 
 Day 04 runtime verified by user; exact V3 score not supplied.
+
+## Day 05 baseline sign-off and V2
+Faculty target met: agent 83.33%, memory 100%, PDF 100%, combined agent and memory 86.21%, overall 87.88%. Baseline CSVs archived in Day-05/results/baseline/. V2 targeted fixes committed; live retest and Day 05 Sheets evidence pending. See Day-05/EXPERIMENT_RESULTS.md.
