@@ -4,3 +4,5 @@ langchain>=1,<2
 pydantic>=2,<3
 gspread
 google-auth
+chromadb
+langgraph
